@@ -1,0 +1,11 @@
+{
+  "name": "cesium-raylib-viewer",
+  "version-string": "0.1.0",
+  "dependencies": [
+    "cesium-native",
+    "raylib",
+    "cpp-httplib",
+    "nlohmann-json",
+    "spdlog"
+  ]
+}
