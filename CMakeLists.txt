@@ -5,6 +5,14 @@ project(CesiumRaylibViewer LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Try to auto-detect vcpkg toolchain if not specified
+if(NOT CMAKE_TOOLCHAIN_FILE)
+    if(DEFINED ENV{VCPKG_ROOT})
+        set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
+        message(STATUS "Auto-detected vcpkg toolchain: ${CMAKE_TOOLCHAIN_FILE}")
+    endif()
+endif()
+
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/cesium-native/CMakeLists.txt")
     # Prevent cesium-native from trying to use its own vcpkg setup, as we are managing it at the root.
     set(CESIUM_USE_EZVCPKG OFF CACHE BOOL "Disable cesium-native ezvcpkg" FORCE)

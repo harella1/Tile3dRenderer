@@ -30,7 +30,14 @@ A C++ project to render 3D Tiles using [Cesium Native](https://github.com/Cesium
 2.  Configure with CMake using vcpkg toolchain:
 
     ```bash
+    # Replace [path to vcpkg] with the actual path, e.g., C:/vcpkg
     cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=[path to vcpkg]/scripts/buildsystems/vcpkg.cmake
+    ```
+
+    Alternatively, if you have the `VCPKG_ROOT` environment variable set, you can simply run:
+
+    ```bash
+    cmake -B build -S .
     ```
 
 3.  Build:
