@@ -5,7 +5,12 @@ project(CesiumRaylibViewer LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(cesium-native CONFIG REQUIRED)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/cesium-native/CMakeLists.txt")
+    add_subdirectory(external/cesium-native)
+else()
+    find_package(cesium-native CONFIG REQUIRED)
+endif()
+
 find_package(raylib CONFIG REQUIRED)
 find_package(cpp-httplib CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)

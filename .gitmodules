@@ -1,0 +1,3 @@
+[submodule "external/cesium-native"]
+	path = external/cesium-native
+	url = https://github.com/CesiumGS/cesium-native.git
