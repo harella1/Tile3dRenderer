@@ -6,6 +6,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/cesium-native/CMakeLists.txt")
+    # Prevent cesium-native from trying to use its own vcpkg setup, as we are managing it at the root.
+    set(CESIUM_USE_EZVCPKG OFF CACHE BOOL "Disable cesium-native ezvcpkg" FORCE)
+    set(VCPKG_MANIFEST_MODE ON)
     add_subdirectory(external/cesium-native)
 else()
     find_package(cesium-native CONFIG REQUIRED)
