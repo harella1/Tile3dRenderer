@@ -48,6 +48,7 @@ else()
 endif()
 
 find_package(raylib CONFIG REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
 find_package(httplib CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
@@ -72,6 +73,7 @@ target_link_libraries(CesiumRaylibViewer PRIVATE
     CesiumGltf
     CesiumUtility
     raylib
+    glfw
     httplib::httplib
     nlohmann_json::nlohmann_json
     spdlog::spdlog
@@ -79,6 +81,10 @@ target_link_libraries(CesiumRaylibViewer PRIVATE
     OpenSSL::SSL
     OpenSSL::Crypto
 )
+
+if(WIN32)
+    target_link_libraries(CesiumRaylibViewer PRIVATE winmm)
+endif()
 
 # Copy resources if needed, but we load from URL/Network usually.
 # If local files, we might need a post-build step.
