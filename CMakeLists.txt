@@ -23,7 +23,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/cesium-native/cmake/ezvcpkg/ezvc
     ezvcpkg_fetch(
         COMMIT afc0a2e01ae104a2474216a2df0e8d78516fd5af
         REPO microsoft/vcpkg
-        PACKAGES raylib nlohmann-json
+        PACKAGES raylib nlohmann-json cpp-httplib spdlog
         UPDATE_TOOLCHAIN
     )
 
