@@ -48,7 +48,7 @@ else()
 endif()
 
 find_package(raylib CONFIG REQUIRED)
-find_package(cpp-httplib CONFIG REQUIRED)
+find_package(httplib CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(Threads REQUIRED)
