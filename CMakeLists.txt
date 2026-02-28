@@ -4,6 +4,21 @@ cmake_minimum_required(VERSION 3.15)
 # We must do this BEFORE project() so the toolchain is set correctly.
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/cesium-native/cmake/ezvcpkg/ezvcpkg.cmake")
     set(VCPKG_MANIFEST_MODE OFF CACHE BOOL "Disable manifest mode to use ezvcpkg")
+
+    # ezvcpkg needs to know the triplet before fetching. We use cesium-native's detection script.
+    include("${CMAKE_CURRENT_SOURCE_DIR}/external/cesium-native/cmake/detect-vcpkg-triplet.cmake")
+    if (NOT VCPKG_TRIPLET)
+        if (DEFINED ENV{VCPKG_TRIPLET})
+            set(VCPKG_TRIPLET "$ENV{VCPKG_TRIPLET}")
+        elseif(DETECTED_VCPKG_TRIPLET_ERROR)
+            message(FATAL_ERROR "${DETECTED_VCPKG_TRIPLET_ERROR}")
+        elseif(DETECTED_VCPKG_TRIPLET STREQUAL "x64-windows")
+            set(VCPKG_TRIPLET "x64-windows-static-md")
+        else()
+            set(VCPKG_TRIPLET "${DETECTED_VCPKG_TRIPLET}")
+        endif()
+    endif()
+
     include("${CMAKE_CURRENT_SOURCE_DIR}/external/cesium-native/cmake/ezvcpkg/ezvcpkg.cmake")
     ezvcpkg_fetch(
         COMMIT afc0a2e01ae104a2474216a2df0e8d78516fd5af
