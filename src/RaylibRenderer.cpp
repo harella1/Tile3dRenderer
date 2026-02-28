@@ -278,4 +278,25 @@ void RaylibRenderer::detachRasterInMainThread(
     // Not implemented
 }
 
+void* RaylibRenderer::prepareRasterInLoadThread(
+    CesiumGltf::ImageAsset& image,
+    const std::any& rendererOptions)
+{
+    return nullptr;
+}
+
+void* RaylibRenderer::prepareRasterInMainThread(
+    CesiumRasterOverlays::RasterOverlayTile& rasterTile,
+    void* pLoadThreadResult)
+{
+    return nullptr;
+}
+
+void RaylibRenderer::freeRaster(
+    const CesiumRasterOverlays::RasterOverlayTile& rasterTile,
+    void* pLoadThreadResult,
+    void* pMainThreadResult) noexcept
+{
+}
+
 }

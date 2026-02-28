@@ -71,6 +71,19 @@ public:
         int32_t overlayTextureCoordinateID,
         const CesiumRasterOverlays::RasterOverlayTile& rasterTile,
         void* pMainThreadRendererResources) noexcept override;
+
+    void* prepareRasterInLoadThread(
+        CesiumGltf::ImageAsset& image,
+        const std::any& rendererOptions) override;
+
+    void* prepareRasterInMainThread(
+        CesiumRasterOverlays::RasterOverlayTile& rasterTile,
+        void* pLoadThreadResult) override;
+
+    void freeRaster(
+        const CesiumRasterOverlays::RasterOverlayTile& rasterTile,
+        void* pLoadThreadResult,
+        void* pMainThreadResult) noexcept override;
 };
 
 }
