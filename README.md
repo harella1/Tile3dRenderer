@@ -24,24 +24,22 @@ A C++ project to render 3D Tiles using [Cesium Native](https://github.com/Cesium
 - spdlog
 - OpenSSL (required for HTTPS)
 
-## Build Instructions (with vcpkg)
+## Build Instructions
 
-1.  Clone this repository.
-2.  Configure with CMake using vcpkg toolchain:
+This project uses `ezvcpkg` (bundled with `cesium-native`) to automatically download and build its dependencies (`raylib`, `nlohmann-json`, and `cesium-native`'s dependencies). You do not need to install `vcpkg` manually.
 
+1.  Clone this repository with its submodules:
     ```bash
-    # Replace [path to vcpkg] with the actual path, e.g., C:/vcpkg
-    cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=[path to vcpkg]/scripts/buildsystems/vcpkg.cmake
+    git clone --recursive <repository_url>
     ```
 
-    Alternatively, if you have the `VCPKG_ROOT` environment variable set, you can simply run:
-
+2.  Configure with CMake:
     ```bash
     cmake -B build -S .
     ```
+    *Note: This step might take a while on the first run as it downloads and builds all dependencies.*
 
 3.  Build:
-
     ```bash
     cmake --build build
     ```

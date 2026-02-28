@@ -1,22 +1,26 @@
 cmake_minimum_required(VERSION 3.15)
 
+# If cesium-native is included as a submodule, use its ezvcpkg script to fetch our dependencies.
+# We must do this BEFORE project() so the toolchain is set correctly.
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/cesium-native/cmake/ezvcpkg/ezvcpkg.cmake")
+    set(VCPKG_MANIFEST_MODE OFF CACHE BOOL "Disable manifest mode to use ezvcpkg")
+    include("${CMAKE_CURRENT_SOURCE_DIR}/external/cesium-native/cmake/ezvcpkg/ezvcpkg.cmake")
+    ezvcpkg_fetch(
+        COMMIT afc0a2e01ae104a2474216a2df0e8d78516fd5af
+        REPO microsoft/vcpkg
+        PACKAGES raylib nlohmann-json
+        UPDATE_TOOLCHAIN
+    )
+endif()
+
 project(CesiumRaylibViewer LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Try to auto-detect vcpkg toolchain if not specified
-if(NOT CMAKE_TOOLCHAIN_FILE)
-    if(DEFINED ENV{VCPKG_ROOT})
-        set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
-        message(STATUS "Auto-detected vcpkg toolchain: ${CMAKE_TOOLCHAIN_FILE}")
-    endif()
-endif()
-
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/cesium-native/CMakeLists.txt")
-    # Prevent cesium-native from trying to use its own vcpkg setup, as we are managing it at the root.
-    set(CESIUM_USE_EZVCPKG OFF CACHE BOOL "Disable cesium-native ezvcpkg" FORCE)
-    set(VCPKG_MANIFEST_MODE ON)
+    # Let cesium-native use ezvcpkg for its own dependencies.
+    set(CESIUM_USE_EZVCPKG ON CACHE BOOL "Enable cesium-native ezvcpkg" FORCE)
     add_subdirectory(external/cesium-native)
 else()
     find_package(cesium-native CONFIG REQUIRED)
