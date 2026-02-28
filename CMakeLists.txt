@@ -26,6 +26,12 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/cesium-native/cmake/ezvcpkg/ezvc
         PACKAGES raylib nlohmann-json
         UPDATE_TOOLCHAIN
     )
+
+    # The ezvcpkg toolchain does not reliably set CMAKE_PREFIX_PATH on its own.
+    # cesium-native applies this workaround internally, and we must do the same here
+    # so that find_package() works for the root project's dependencies.
+    list(APPEND CMAKE_PREFIX_PATH "${EZVCPKG_DIR}/share")
+    list(APPEND CMAKE_PREFIX_PATH "${EZVCPKG_DIR}")
 endif()
 
 project(CesiumRaylibViewer LANGUAGES CXX)
