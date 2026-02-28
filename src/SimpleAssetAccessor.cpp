@@ -64,7 +64,7 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> SimpleAssetAcce
     // contentPayload is a span, so we must copy the data to a vector.
     std::vector<std::byte> payloadVec(contentPayload.begin(), contentPayload.end());
 
-    return asyncSystem.createFuture<std::shared_ptr<CesiumAsync::IAssetRequest>>([verb, url, headers, payload = std::move(payloadVec)]() -> std::shared_ptr<CesiumAsync::IAssetRequest> {
+    return asyncSystem.runInWorkerThread([verb, url, headers, payload = std::move(payloadVec)]() -> std::shared_ptr<CesiumAsync::IAssetRequest> {
         ParsedUrl parsed = parseUrl(url);
         std::string baseUrl = parsed.protocol + "://" + parsed.host + ":" + std::to_string(parsed.port);
 

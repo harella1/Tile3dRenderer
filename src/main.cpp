@@ -168,7 +168,11 @@ int main(int argc, char** argv) {
                 for (const auto& pTile : viewResult.tilesToRenderThisFrame) {
                     if (!pTile) continue;
 
-                    RaylibModel* pModel = static_cast<RaylibModel*>(pTile->getRendererResources());
+                    // In recent cesium-native, render resources are inside content
+                    auto* pRenderContent = pTile->getContent().getRenderContent();
+                    if (!pRenderContent) continue;
+
+                    RaylibModel* pModel = static_cast<RaylibModel*>(pRenderContent->getRenderResources());
                     if (pModel && pModel->loaded) {
                         // Calculate RTC transform
                         // Tile transform is ECEF. Camera is ECEF.

@@ -53,7 +53,8 @@ RaylibRenderer::prepareInLoadThread(
                 rayTexture.height = image.pAsset->height;
                 // Assuming RGBA8 or RGB8. CesiumGltfReader usually gives RGBA8?
                 // Raylib needs raw data.
-                rayTexture.data.assign(image.pAsset->pixelData.begin(), image.pAsset->pixelData.end());
+                rayTexture.data.resize(image.pAsset->pixelData.size());
+                std::memcpy(rayTexture.data.data(), image.pAsset->pixelData.data(), image.pAsset->pixelData.size());
 
                 if (image.pAsset->channels == 4) {
                     rayTexture.format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
