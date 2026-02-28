@@ -32,8 +32,8 @@ void ApiServer::start(int port) {
             request.pitch = j.value("pitch", -45.0);
             request.roll = j.value("roll", 0.0);
             request.fov = j.value("fov", 60.0);
-            request.width = j.value("width", 800);
-            request.height = j.value("height", 600);
+            request.imageWidth = j.value("width", 800);
+            request.imageHeight = j.value("height", 600);
 
             std::unique_lock<std::mutex> lock(_sharedState.mutex);
             _sharedState.cv.wait(lock, [this]() { return !_sharedState.hasRequest; });

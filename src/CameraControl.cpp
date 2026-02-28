@@ -1,7 +1,7 @@
 #include "CameraControl.h"
 #include <CesiumGeospatial/Ellipsoid.h>
 #include <CesiumGeospatial/Cartographic.h>
-#include <CesiumGeometry/Transforms.h>
+#include <CesiumGeospatial/LocalHorizontalCoordinateSystem.h>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/geometric.hpp>
@@ -20,7 +20,8 @@ void CameraControl::update(float deltaTime) {
     // But moving in ECEF is hard with simple vector addition (up vector changes).
     // We should move in ENU frame.
 
-    glm::dmat4 enuToFixed = CesiumGeospatial::Ellipsoid::WGS84.eastNorthUpToFixedFrame(_position);
+    CesiumGeospatial::LocalHorizontalCoordinateSystem lhcs(_position);
+    glm::dmat4 enuToFixed = lhcs.getLocalToEcefTransformation();
     glm::dvec3 east = glm::dvec3(enuToFixed[0]);
     glm::dvec3 north = glm::dvec3(enuToFixed[1]);
     glm::dvec3 up = glm::dvec3(enuToFixed[2]);
@@ -53,12 +54,12 @@ void CameraControl::update(float deltaTime) {
             float sensitivity = 0.002f;
 
             // Rotate around Up axis (Yaw)
-            glm::dquat yawQuat = glm::angleAxis(-delta.x * sensitivity, up);
+            glm::dquat yawQuat = glm::angleAxis((double)(-delta.x * sensitivity), up);
             _direction = yawQuat * _direction;
 
             // Rotate around Right axis (Pitch)
             glm::dvec3 right = glm::cross(_direction, up);
-            glm::dquat pitchQuat = glm::angleAxis(-delta.y * sensitivity, right);
+            glm::dquat pitchQuat = glm::angleAxis((double)(-delta.y * sensitivity), right);
             _direction = pitchQuat * _direction;
         }
     } else {
@@ -83,7 +84,8 @@ void CameraControl::setOrientation(double heading, double pitch, double roll) {
     // Pitch: -90 is looking down.
     // Roll: 0 is level.
 
-    glm::dmat4 enuToFixed = CesiumGeospatial::Ellipsoid::WGS84.eastNorthUpToFixedFrame(_position);
+    CesiumGeospatial::LocalHorizontalCoordinateSystem lhcs(_position);
+    glm::dmat4 enuToFixed = lhcs.getLocalToEcefTransformation();
 
     // Create rotation in ENU
     // Cesium uses: x=East, y=North, z=Up.

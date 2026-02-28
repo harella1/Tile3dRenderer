@@ -59,11 +59,11 @@ public:
         uint16_t statusCode,
         const std::string& contentType,
         const CesiumAsync::HttpHeaders& headers,
-        std::vector<std::byte>&& data
+        std::vector<std::byte> data
     );
 
     uint16_t statusCode() const override;
-    const std::string& contentType() const override;
+    std::string contentType() const override;
     const CesiumAsync::HttpHeaders& headers() const override;
     std::span<const std::byte> data() const override;
 

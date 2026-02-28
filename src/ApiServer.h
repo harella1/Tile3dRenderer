@@ -23,8 +23,8 @@ struct RenderRequest {
     double pitch;
     double roll;
     double fov;
-    int width;
-    int height;
+    int imageWidth;
+    int imageHeight;
 };
 
 struct SharedState {

@@ -20,6 +20,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/trigonometric.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 #include <iostream>
@@ -98,9 +99,9 @@ int main(int argc, char** argv) {
                 cameraControl.setFov(req.fov);
 
                 // Resize target if needed
-                if (req.width != target.texture.width || req.height != target.texture.height) {
+                if (req.imageWidth != target.texture.width || req.imageHeight != target.texture.height) {
                     UnloadRenderTexture(target);
-                    target = LoadRenderTexture(req.width, req.height);
+                    target = LoadRenderTexture(req.imageWidth, req.imageHeight);
                 }
 
                 // Wait for tiles to load (API mode)
@@ -117,7 +118,7 @@ int main(int argc, char** argv) {
                      double cFov = glm::radians(cameraControl.getFov());
 
                      Cesium3DTilesSelection::ViewState vs = Cesium3DTilesSelection::ViewState::create(
-                        cPos, cDir, cUp, glm::dvec2(req.width, req.height), cFov, cFov
+                        cPos, cDir, cUp, glm::dvec2(req.imageWidth, req.imageHeight), cFov, cFov
                      );
 
                      pTileset->updateView({vs}, 0.0f); // 0 delta time for loading loop
@@ -164,7 +165,7 @@ int main(int argc, char** argv) {
             BeginMode3D(rayCam);
 
                 // Render Tiles
-                for (const auto* pTile : viewResult.tilesToRenderThisFrame) {
+                for (const auto& pTile : viewResult.tilesToRenderThisFrame) {
                     if (!pTile) continue;
 
                     RaylibModel* pModel = static_cast<RaylibModel*>(pTile->getRendererResources());

@@ -4,6 +4,7 @@
 #include <CesiumGltf/Material.h>
 #include <CesiumGltf/Texture.h>
 #include <Cesium3DTilesSelection/TileLoadResult.h>
+#include <CesiumAsync/AsyncSystem.h>
 #include <iostream>
 #include <cstring>
 #include <glm/gtc/type_ptr.hpp>
