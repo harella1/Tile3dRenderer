@@ -23,7 +23,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/cesium-native/cmake/ezvcpkg/ezvc
     ezvcpkg_fetch(
         COMMIT afc0a2e01ae104a2474216a2df0e8d78516fd5af
         REPO microsoft/vcpkg
-        PACKAGES raylib nlohmann-json cpp-httplib spdlog
+        PACKAGES raylib nlohmann-json spdlog
         UPDATE_TOOLCHAIN
     )
 
@@ -49,7 +49,6 @@ endif()
 
 find_package(raylib CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
-find_package(httplib CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(Threads REQUIRED)
@@ -59,8 +58,6 @@ add_executable(CesiumRaylibViewer
     src/main.cpp
     src/RaylibRenderer.cpp
     src/RaylibRenderer.h
-    src/SimpleAssetAccessor.cpp
-    src/SimpleAssetAccessor.h
     src/ApiServer.cpp
     src/ApiServer.h
     src/CameraControl.cpp
@@ -72,9 +69,9 @@ target_link_libraries(CesiumRaylibViewer PRIVATE
     CesiumAsync
     CesiumGltf
     CesiumUtility
+    CesiumCurl
     raylib
     glfw
-    httplib::httplib
     nlohmann_json::nlohmann_json
     spdlog::spdlog
     Threads::Threads

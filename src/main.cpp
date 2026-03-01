@@ -1,4 +1,3 @@
-#include "SimpleAssetAccessor.h"
 #include "RaylibRenderer.h"
 #include "CameraControl.h"
 #include "ApiServer.h"
@@ -10,6 +9,7 @@
 #include <Cesium3DTilesSelection/ViewState.h>
 #include <CesiumAsync/AsyncSystem.h>
 #include <CesiumAsync/ITaskProcessor.h>
+#include <CesiumCurl/CurlAssetAccessor.h>
 #include <CesiumUtility/CreditSystem.h>
 #include <CesiumUtility/Math.h>
 
@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
     auto pTaskProcessor = std::make_shared<SimpleTaskProcessor>();
     CesiumAsync::AsyncSystem asyncSystem(pTaskProcessor);
 
-    auto pAssetAccessor = std::make_shared<SimpleAssetAccessor>();
+    auto pAssetAccessor = std::make_shared<CesiumCurl::CurlAssetAccessor>();
     auto pCreditSystem = std::make_shared<CesiumUtility::CreditSystem>();
     auto pLogger = spdlog::stdout_color_mt("cesium");
 
