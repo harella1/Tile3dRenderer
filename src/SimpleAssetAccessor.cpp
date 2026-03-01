@@ -111,9 +111,10 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> SimpleAssetAcce
                 std::cout << "Body preview: " << debugBody << std::endl;
             }
 
-            std::vector<std::byte> data;
-            data.resize(res->body.size());
-            std::memcpy(data.data(), res->body.data(), res->body.size());
+            std::vector<std::byte> data(
+                reinterpret_cast<const std::byte*>(res->body.data()),
+                reinterpret_cast<const std::byte*>(res->body.data() + res->body.size())
+            );
 
             // Strip UTF-8 BOM if present. Many strict JSON parsers (like RapidJSON in strict mode)
             // will fail at byte offset 0 with "Invalid value" if the BOM is present.
@@ -125,6 +126,10 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> SimpleAssetAcce
                 data.erase(data.begin(), data.begin() + 3);
                 std::cout << "[SimpleAssetAccessor] Stripped UTF-8 BOM from response.\n";
             }
+
+            std::cout << "[SimpleAssetAccessor] Response constructed for URL " << url
+                      << " with " << data.size() << " bytes. First byte: "
+                      << (data.empty() ? -1 : (int)data[0]) << std::endl;
 
             CesiumAsync::HttpHeaders responseHeaders;
             for (const auto& h : res->headers) {
@@ -180,6 +185,9 @@ std::string SimpleAssetResponse::contentType() const { return _contentType; }
 const CesiumAsync::HttpHeaders& SimpleAssetResponse::headers() const { return _headers; }
 std::span<const std::byte> SimpleAssetResponse::data() const {
     // Explicitly construct span to ensure it is correctly sized.
+    if (_data.empty()) {
+        std::cerr << "[SimpleAssetResponse] WARNING: Returning empty span!" << std::endl;
+    }
     return std::span<const std::byte>(_data.data(), _data.size());
 }
 
