@@ -157,7 +157,8 @@ int main(int argc, char** argv) {
                 CesiumGeospatial::LocalHorizontalCoordinateSystem lhcs(center);
                 glm::dvec3 up = glm::dvec3(lhcs.getLocalToEcefTransformation()[2]);
 
-                cameraControl.setPositionEcef(center + up * 500.0); // 500 meters above center
+                // 50 meters above center is usually better for individual models like the dragon
+                cameraControl.setPositionEcef(center + up * 50.0);
                 cameraControl.setOrientation(0.0, -45.0, 0.0); // Looking slightly down
 
                 cameraInitializedToTileset = true;

@@ -68,67 +68,108 @@ RaylibRenderer::prepareInLoadThread(
         pLoadResult->textures.push_back(std::move(rayTexture));
     }
 
-    // Load Meshes
-    for (const auto& mesh : pModel->meshes) {
-        for (const auto& primitive : mesh.primitives) {
-            RaylibMeshPrimitive rayPrimitive;
-            rayPrimitive.materialIndex = primitive.material;
+    // Traverse glTF nodes to calculate absolute transforms and extract meshes
+    auto traverseNode = [&](int nodeId, const glm::dmat4& parentTransform, auto& traverseRef) -> void {
+        if (nodeId < 0 || nodeId >= static_cast<int>(pModel->nodes.size())) return;
 
-            auto positionAccessorIt = primitive.attributes.find("POSITION");
-            if (positionAccessorIt != primitive.attributes.end()) {
-                CesiumGltf::AccessorView<glm::vec3> positions(*pModel, positionAccessorIt->second);
-                if (positions.status() == CesiumGltf::AccessorViewStatus::Valid) {
-                    for (int i = 0; i < positions.size(); ++i) {
-                        glm::vec3 p = positions[i];
-                        rayPrimitive.vertices.push_back(p.x);
-                        rayPrimitive.vertices.push_back(p.y);
-                        rayPrimitive.vertices.push_back(p.z);
+        const auto& node = pModel->nodes[nodeId];
+        glm::dmat4 nodeTransform(1.0);
+
+        if (node.matrix.size() == 16) {
+            nodeTransform = glm::dmat4(
+                node.matrix[0], node.matrix[1], node.matrix[2], node.matrix[3],
+                node.matrix[4], node.matrix[5], node.matrix[6], node.matrix[7],
+                node.matrix[8], node.matrix[9], node.matrix[10], node.matrix[11],
+                node.matrix[12], node.matrix[13], node.matrix[14], node.matrix[15]
+            );
+        } else {
+            if (node.translation.size() == 3) {
+                nodeTransform = glm::translate(nodeTransform, glm::dvec3(node.translation[0], node.translation[1], node.translation[2]));
+            }
+            if (node.rotation.size() == 4) {
+                glm::dquat q(node.rotation[3], node.rotation[0], node.rotation[1], node.rotation[2]);
+                nodeTransform = nodeTransform * glm::mat4_cast(q);
+            }
+            if (node.scale.size() == 3) {
+                nodeTransform = glm::scale(nodeTransform, glm::dvec3(node.scale[0], node.scale[1], node.scale[2]));
+            }
+        }
+
+        glm::dmat4 absoluteTransform = parentTransform * nodeTransform;
+        glm::dmat3 normalTransform = glm::dmat3(glm::transpose(glm::inverse(absoluteTransform)));
+
+        if (node.mesh >= 0 && node.mesh < static_cast<int>(pModel->meshes.size())) {
+            const auto& mesh = pModel->meshes[node.mesh];
+            for (const auto& primitive : mesh.primitives) {
+                RaylibMeshPrimitive rayPrimitive;
+                rayPrimitive.materialIndex = primitive.material;
+
+                auto positionAccessorIt = primitive.attributes.find("POSITION");
+                if (positionAccessorIt != primitive.attributes.end()) {
+                    CesiumGltf::AccessorView<glm::vec3> positions(*pModel, positionAccessorIt->second);
+                    if (positions.status() == CesiumGltf::AccessorViewStatus::Valid) {
+                        for (int i = 0; i < positions.size(); ++i) {
+                            glm::dvec3 p = absoluteTransform * glm::dvec4(positions[i].x, positions[i].y, positions[i].z, 1.0);
+                            rayPrimitive.vertices.push_back(static_cast<float>(p.x));
+                            rayPrimitive.vertices.push_back(static_cast<float>(p.y));
+                            rayPrimitive.vertices.push_back(static_cast<float>(p.z));
+                        }
                     }
                 }
-            }
 
-            auto normalAccessorIt = primitive.attributes.find("NORMAL");
-            if (normalAccessorIt != primitive.attributes.end()) {
-                CesiumGltf::AccessorView<glm::vec3> normals(*pModel, normalAccessorIt->second);
-                if (normals.status() == CesiumGltf::AccessorViewStatus::Valid) {
-                    for (int i = 0; i < normals.size(); ++i) {
-                        glm::vec3 n = normals[i];
-                        rayPrimitive.normals.push_back(n.x);
-                        rayPrimitive.normals.push_back(n.y);
-                        rayPrimitive.normals.push_back(n.z);
+                auto normalAccessorIt = primitive.attributes.find("NORMAL");
+                if (normalAccessorIt != primitive.attributes.end()) {
+                    CesiumGltf::AccessorView<glm::vec3> normals(*pModel, normalAccessorIt->second);
+                    if (normals.status() == CesiumGltf::AccessorViewStatus::Valid) {
+                        for (int i = 0; i < normals.size(); ++i) {
+                            glm::dvec3 n = glm::normalize(normalTransform * glm::dvec3(normals[i].x, normals[i].y, normals[i].z));
+                            rayPrimitive.normals.push_back(static_cast<float>(n.x));
+                            rayPrimitive.normals.push_back(static_cast<float>(n.y));
+                            rayPrimitive.normals.push_back(static_cast<float>(n.z));
+                        }
                     }
                 }
-            }
 
-            auto texCoordAccessorIt = primitive.attributes.find("TEXCOORD_0");
-            if (texCoordAccessorIt != primitive.attributes.end()) {
-                CesiumGltf::AccessorView<glm::vec2> texcoords(*pModel, texCoordAccessorIt->second);
-                if (texcoords.status() == CesiumGltf::AccessorViewStatus::Valid) {
-                    for (int i = 0; i < texcoords.size(); ++i) {
-                        glm::vec2 uv = texcoords[i];
-                        rayPrimitive.texcoords.push_back(uv.x);
-                        rayPrimitive.texcoords.push_back(uv.y);
+                auto texCoordAccessorIt = primitive.attributes.find("TEXCOORD_0");
+                if (texCoordAccessorIt != primitive.attributes.end()) {
+                    CesiumGltf::AccessorView<glm::vec2> texcoords(*pModel, texCoordAccessorIt->second);
+                    if (texcoords.status() == CesiumGltf::AccessorViewStatus::Valid) {
+                        for (int i = 0; i < texcoords.size(); ++i) {
+                            glm::vec2 uv = texcoords[i];
+                            rayPrimitive.texcoords.push_back(uv.x);
+                            rayPrimitive.texcoords.push_back(uv.y);
+                        }
                     }
                 }
-            }
 
-            if (primitive.indices >= 0) {
-                 CesiumGltf::AccessorView<uint32_t> indices(*pModel, primitive.indices);
-                 if (indices.status() == CesiumGltf::AccessorViewStatus::Valid) {
-                      for (int i = 0; i < indices.size(); ++i) {
-                          rayPrimitive.indices.push_back(static_cast<unsigned short>(indices[i]));
-                      }
-                 } else {
-                     CesiumGltf::AccessorView<uint16_t> indices16(*pModel, primitive.indices);
-                     if (indices16.status() == CesiumGltf::AccessorViewStatus::Valid) {
-                          for (int i = 0; i < indices16.size(); ++i) {
-                              rayPrimitive.indices.push_back(indices16[i]);
+                if (primitive.indices >= 0) {
+                     CesiumGltf::AccessorView<uint32_t> indices(*pModel, primitive.indices);
+                     if (indices.status() == CesiumGltf::AccessorViewStatus::Valid) {
+                          for (int i = 0; i < indices.size(); ++i) {
+                              rayPrimitive.indices.push_back(static_cast<unsigned short>(indices[i]));
                           }
+                     } else {
+                         CesiumGltf::AccessorView<uint16_t> indices16(*pModel, primitive.indices);
+                         if (indices16.status() == CesiumGltf::AccessorViewStatus::Valid) {
+                              for (int i = 0; i < indices16.size(); ++i) {
+                                  rayPrimitive.indices.push_back(indices16[i]);
+                              }
+                         }
                      }
-                 }
-            }
+                }
 
-            pLoadResult->primitives.push_back(std::move(rayPrimitive));
+                pLoadResult->primitives.push_back(std::move(rayPrimitive));
+            }
+        }
+
+        for (int childId : node.children) {
+            traverseRef(childId, absoluteTransform, traverseRef);
+        }
+    };
+
+    if (pModel->scene >= 0 && pModel->scene < static_cast<int>(pModel->scenes.size())) {
+        for (int rootNodeId : pModel->scenes[pModel->scene].nodes) {
+            traverseNode(rootNodeId, glm::dmat4(1.0), traverseNode);
         }
     }
 

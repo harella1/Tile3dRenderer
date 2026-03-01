@@ -26,8 +26,8 @@ void CameraControl::update(float deltaTime) {
     glm::dvec3 north = glm::dvec3(enuToFixed[1]);
     glm::dvec3 up = glm::dvec3(enuToFixed[2]);
 
-    double speed = 100.0; // meters per second
-    if (IsKeyDown(KEY_LEFT_SHIFT)) speed *= 10.0;
+    double speed = 10.0; // meters per second
+    if (IsKeyDown(KEY_LEFT_SHIFT)) speed *= 5.0;
 
     glm::dvec3 move = glm::dvec3(0.0);
     if (IsKeyDown(KEY_W)) move += _direction;
