@@ -88,6 +88,9 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> SimpleAssetAcce
             httpHeaders.emplace("User-Agent", "CesiumRaylibViewer/0.1.0");
         }
 
+        // Ensure we don't get gzip compressed data since we don't have zlib linked in httplib
+        httpHeaders.emplace("Accept-Encoding", "identity");
+
         httplib::Result res;
         if (verb == "GET") {
             res = client.Get(parsed.path, httpHeaders);
@@ -101,6 +104,11 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> SimpleAssetAcce
         if (res) {
             if (res->status >= 400) {
                 std::cerr << "[SimpleAssetAccessor] HTTP Error: " << res->status << " for URL: " << url << std::endl;
+            } else {
+                std::cout << "[SimpleAssetAccessor] Success 200 for URL: " << url << "\n";
+                // DEBUG: Print the first 100 characters of the body to see what we actually received
+                std::string debugBody = res->body.substr(0, std::min<size_t>(100, res->body.size()));
+                std::cout << "Body preview: " << debugBody << std::endl;
             }
 
             std::vector<std::byte> data;
