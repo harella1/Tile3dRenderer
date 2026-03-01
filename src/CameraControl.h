@@ -13,6 +13,10 @@ public:
 
     // Set camera from geodetic coordinates (degrees, meters)
     void setPosition(double latitude, double longitude, double height);
+
+    // Set camera directly from ECEF coordinates
+    void setPositionEcef(const glm::dvec3& ecef);
+
     void setOrientation(double heading, double pitch, double roll);
     void setFov(double fovDegrees);
 

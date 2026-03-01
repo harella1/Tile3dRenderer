@@ -28,6 +28,7 @@
 #include <thread>
 #include <filesystem>
 #include <chrono>
+#include <Cesium3DTilesSelection/BoundingVolume.h>
 
 // TaskProcessor implementation for CesiumAsync
 class SimpleTaskProcessor : public CesiumAsync::ITaskProcessor {
@@ -85,6 +86,8 @@ int main(int argc, char** argv) {
 
     RenderTexture2D target = LoadRenderTexture(screenWidth, screenHeight);
 
+    bool cameraInitializedToTileset = false;
+
     // Main Loop
     while (!WindowShouldClose()) {
         // Update
@@ -141,6 +144,25 @@ int main(int argc, char** argv) {
 
         pAssetAccessor->tick();
         asyncSystem.dispatchMainThreadTasks();
+
+        // Auto-focus camera on the tileset once the root tile is loaded
+        if (!cameraInitializedToTileset) {
+            const auto* pRootTile = pTileset->getRootTile();
+            if (pRootTile) {
+                // Get the center of the bounding volume in ECEF
+                glm::dvec3 center = Cesium3DTilesSelection::getBoundingVolumeCenter(pRootTile->getBoundingVolume());
+
+                // Offset the camera slightly along the UP vector (surface normal) so we are looking at it
+                CesiumGeospatial::LocalHorizontalCoordinateSystem lhcs(center);
+                glm::dvec3 up = glm::dvec3(lhcs.getLocalToEcefTransformation()[2]);
+
+                cameraControl.setPositionEcef(center + up * 500.0); // 500 meters above center
+                cameraControl.setOrientation(0.0, -45.0, 0.0); // Looking slightly down
+
+                cameraInitializedToTileset = true;
+                std::cout << "Camera centered on tileset root." << std::endl;
+            }
+        }
 
         // Calculate View State
         Camera3D rayCam = cameraControl.getCamera();

@@ -71,12 +71,10 @@ void CameraControl::setPosition(double latitude, double longitude, double height
     _position = CesiumGeospatial::Ellipsoid::WGS84.cartographicToCartesian(
         CesiumGeospatial::Cartographic::fromDegrees(longitude, latitude, height)
     );
+}
 
-    // Reset orientation to look North-East-Down or similar?
-    // Maintain relative orientation?
-    // Let's just set default orientation if needed, or keep current local orientation.
-    // For now, recompute up.
-    // Actually setOrientation expects heading pitch roll.
+void CameraControl::setPositionEcef(const glm::dvec3& ecef) {
+    _position = ecef;
 }
 
 void CameraControl::setOrientation(double heading, double pitch, double roll) {
