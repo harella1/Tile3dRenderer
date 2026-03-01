@@ -70,12 +70,22 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> SimpleAssetAcce
 
         httplib::Client client(baseUrl);
         client.enable_server_certificate_verification(true);
+        client.set_follow_location(true); // Essential for GitHub raw and many other CDNs
         client.set_connection_timeout(5, 0); // 5 seconds timeout
         client.set_read_timeout(10, 0); // 10 seconds timeout
 
         httplib::Headers httpHeaders;
+        bool hasUserAgent = false;
         for (const auto& header : headers) {
             httpHeaders.emplace(header.first, header.second);
+            if (header.first == "User-Agent" || header.first == "user-agent") {
+                hasUserAgent = true;
+            }
+        }
+
+        // Many servers (like GitHub raw) reject requests without a User-Agent
+        if (!hasUserAgent) {
+            httpHeaders.emplace("User-Agent", "CesiumRaylibViewer/0.1.0");
         }
 
         httplib::Result res;
