@@ -99,6 +99,10 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> SimpleAssetAcce
         }
 
         if (res) {
+            if (res->status >= 400) {
+                std::cerr << "[SimpleAssetAccessor] HTTP Error: " << res->status << " for URL: " << url << std::endl;
+            }
+
             std::vector<std::byte> data;
             data.resize(res->body.size());
             std::memcpy(data.data(), res->body.data(), res->body.size());
@@ -117,7 +121,15 @@ CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> SimpleAssetAcce
 
             return std::make_shared<SimpleAssetRequest>(verb, url, CesiumAsync::HttpHeaders{}, response);
         } else {
-            return nullptr;
+            std::cerr << "[SimpleAssetAccessor] HTTP Request Failed! Error: " << httplib::to_string(res.error()) << " for URL: " << url << std::endl;
+            // Return a 500 error response so Cesium Native handles it properly instead of crashing
+            auto response = std::make_shared<SimpleAssetResponse>(
+                static_cast<uint16_t>(500),
+                "",
+                CesiumAsync::HttpHeaders{},
+                std::vector<std::byte>()
+            );
+            return std::make_shared<SimpleAssetRequest>(verb, url, CesiumAsync::HttpHeaders{}, response);
         }
     });
 }

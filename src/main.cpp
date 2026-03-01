@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
         pLogger
     };
 
-    std::string tilesetUrl = "https://raw.githubusercontent.com/CesiumGS/3d-tiles-samples/master/1.0/TilesetWithDiscreteLOD/tileset.json";
+    std::string tilesetUrl = "https://raw.githubusercontent.com/CesiumGS/3d-tiles-samples/main/1.0/TilesetWithDiscreteLOD/tileset.json";
     if (argc > 1) {
         tilesetUrl = argv[1];
     }
