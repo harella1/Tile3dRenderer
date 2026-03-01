@@ -187,9 +187,19 @@ int main(int argc, char** argv) {
 
         const auto& viewResult = pTileset->updateView({viewState}, deltaTime);
 
+        // Debug printing (once per second to avoid spam)
+        static float debugTimer = 0.0f;
+        debugTimer += deltaTime;
+        bool shouldPrint = false;
+        if (debugTimer > 1.0f) {
+            shouldPrint = true;
+            debugTimer = 0.0f;
+            std::cout << "Tiles to render: " << viewResult.tilesToRenderThisFrame.size() << " | Camera Pos: " << camPos.x << ", " << camPos.y << ", " << camPos.z << std::endl;
+        }
+
         // Render
         BeginTextureMode(target);
-            ClearBackground(RAYWHITE);
+            ClearBackground(DARKGRAY); // Darker background to see untextured white models
             BeginMode3D(rayCam);
 
                 // Render Tiles
@@ -236,6 +246,10 @@ int main(int argc, char** argv) {
                             1.0
                         );
 
+                        if (shouldPrint) {
+                            std::cout << "  Tile relative pos: " << relTransform[3].x << ", " << relTransform[3].y << ", " << relTransform[3].z << std::endl;
+                        }
+
                         // Convert to float matrix
                         Matrix rayMat;
                         glm::mat4 m = static_cast<glm::mat4>(relTransform);
@@ -244,6 +258,9 @@ int main(int argc, char** argv) {
                         for (auto& model : pModel->models) {
                             model.transform = rayMat;
                             DrawModel(model, {0,0,0}, 1.0f, WHITE);
+
+                            // Debug: Draw a bounding box for the model to ensure it's not invisible due to scale
+                            DrawBoundingBox(GetModelBoundingBox(model), RED);
                         }
                     }
                 }
