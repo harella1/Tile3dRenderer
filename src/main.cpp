@@ -13,6 +13,7 @@
 #include <CesiumCurl/CurlAssetAccessor.h>
 #include <CesiumUtility/CreditSystem.h>
 #include <CesiumUtility/Math.h>
+#include <CesiumGeospatial/LocalHorizontalCoordinateSystem.h>
 
 #include <raylib.h>
 #include <glm/vec3.hpp>
