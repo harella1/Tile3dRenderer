@@ -66,6 +66,7 @@ add_executable(CesiumRaylibViewer
 
 target_link_libraries(CesiumRaylibViewer PRIVATE
     Cesium3DTilesSelection
+    Cesium3DTilesContent
     CesiumAsync
     CesiumGltf
     CesiumUtility

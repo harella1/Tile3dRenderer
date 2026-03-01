@@ -5,6 +5,7 @@
 #include <Cesium3DTilesSelection/Tileset.h>
 #include <Cesium3DTilesSelection/TilesetOptions.h>
 #include <Cesium3DTilesSelection/TilesetExternals.h>
+#include <Cesium3DTilesContent/registerAllTileContentTypes.h>
 #include <Cesium3DTilesSelection/ViewUpdateResult.h>
 #include <Cesium3DTilesSelection/ViewState.h>
 #include <CesiumAsync/AsyncSystem.h>
@@ -39,6 +40,9 @@ public:
 using namespace CesiumRaylib;
 
 int main(int argc, char** argv) {
+    // 0. Initialize Cesium Native
+    Cesium3DTilesContent::registerAllTileContentTypes();
+
     // 1. Setup Window
     const int screenWidth = 800;
     const int screenHeight = 600;
