@@ -109,7 +109,8 @@ RaylibRenderer::prepareInLoadThread(
                     CesiumGltf::AccessorView<glm::vec3> positions(*pModel, positionAccessorIt->second);
                     if (positions.status() == CesiumGltf::AccessorViewStatus::Valid) {
                         for (int i = 0; i < positions.size(); ++i) {
-                            glm::dvec3 p = absoluteTransform * glm::dvec4(positions[i].x, positions[i].y, positions[i].z, 1.0);
+                            glm::dvec4 p4 = absoluteTransform * glm::dvec4(positions[i].x, positions[i].y, positions[i].z, 1.0);
+                            glm::dvec3 p(p4.x, p4.y, p4.z);
                             rayPrimitive.vertices.push_back(static_cast<float>(p.x));
                             rayPrimitive.vertices.push_back(static_cast<float>(p.y));
                             rayPrimitive.vertices.push_back(static_cast<float>(p.z));
