@@ -64,7 +64,7 @@ add_executable(CesiumRaylibViewer
     src/CameraControl.h
 )
 
-target_link_libraries(CesiumRaylibViewer PRIVATE
+target_link_libraries(CesiumRaylibViewer PUBLIC "-Wl,--allow-multiple-definition" "-Wl,--allow-multiple-definition" PRIVATE
     Cesium3DTilesSelection
     Cesium3DTilesContent
     CesiumAsync
@@ -81,7 +81,7 @@ target_link_libraries(CesiumRaylibViewer PRIVATE
 )
 
 if(WIN32)
-    target_link_libraries(CesiumRaylibViewer PRIVATE winmm)
+    target_link_libraries(CesiumRaylibViewer PUBLIC "-Wl,--allow-multiple-definition" "-Wl,--allow-multiple-definition" PRIVATE winmm)
 endif()
 
 # Copy resources if needed, but we load from URL/Network usually.
