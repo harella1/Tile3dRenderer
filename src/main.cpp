@@ -1,3 +1,7 @@
+#include <raylib.h>
+
+
+#include <rlgl.h>
 #include "RaylibRenderer.h"
 #include "CameraControl.h"
 #include "ApiServer.h"
@@ -15,7 +19,7 @@
 #include <CesiumUtility/Math.h>
 #include <CesiumGeospatial/LocalHorizontalCoordinateSystem.h>
 
-#include <raylib.h>
+
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
@@ -157,8 +161,8 @@ int main(int argc, char** argv) {
                 CesiumGeospatial::LocalHorizontalCoordinateSystem lhcs(center);
                 glm::dvec3 up = glm::dvec3(lhcs.getLocalToEcefTransformation()[2]);
 
-                // 50 meters above center is usually better for individual models like the dragon
-                cameraControl.setPositionEcef(center + up * 50.0);
+                // 2000 meters above center to ensure we are outside the bounding volume for large tilesets
+                cameraControl.setPositionEcef(center + up * 2000.0);
                 cameraControl.setOrientation(0.0, -45.0, 0.0); // Looking slightly down
 
                 cameraInitializedToTileset = true;
@@ -201,6 +205,8 @@ int main(int argc, char** argv) {
         BeginTextureMode(target);
             ClearBackground(DARKGRAY); // Darker background to see untextured white models
             BeginMode3D(rayCam);
+
+            rlDisableBackfaceCulling(); // Disable backface culling to ensure we see models even if winding is inverted
 
                 // Render Tiles
                 for (const auto& pTile : viewResult.tilesToRenderThisFrame) {
